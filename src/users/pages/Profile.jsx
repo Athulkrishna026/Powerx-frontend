@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Header from '../components/Header'
 import Footer from '../../components/Footer'
 import { faCircleCheck, faL, faSquarePlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import EditProfile from '../components/EditProfile'
 import { toast, ToastContainer } from 'react-toastify'
-import { addBookApi } from '../../services/allApis'
+import { addBookApi, deleteAUserBookAPI, getAllUserBooksAPI, getAllUserBroughtBooksAPI } from '../../services/allApis'
+import { userProfileUpdateContext } from '../../context/ContextShare'
+import { serverURL } from '../../services/serverURL'
 
 const Profile = () => {
 
@@ -32,10 +34,17 @@ const Profile = () => {
 
   const [preview, setPreview] = useState('')
   const [previewList, setPreviewList] = useState([])
-
   const [token, setToken] = useState('')
-  //console.log(bookDetails);
+  const [profile, setProfile] = useState("")
 
+  const [userBooks, setUserBooks] = useState([])
+  const [userBroughtBooks, setUserBroughtBooks] = useState([])
+  const [deleteStatus, setDeleteStatus] = useState("")
+
+  const { userProfileStatus } = useContext(userProfileUpdateContext)
+
+
+  //console.log(bookDetails);
 
   const handleUpload = (e) => {
 
@@ -167,15 +176,67 @@ const Profile = () => {
 
   }
 
+  const getAllUserBooks = async () => {
+    const reqHeader = {
+      "Authorization": `Bearer ${token}`
+    }
+
+    const result = await getAllUserBooksAPI(reqHeader)
+    console.log(result);
+    if (result.status == 200) {
+      setUserBooks(result.data)
+    }
+
+  }
+
+  const getAllUserBroughtBooks = async () => {
+    const reqHeader = {
+      "Authorization": `Bearer ${token}`
+    }
+
+    const result = await getAllUserBroughtBooksAPI(reqHeader)
+    console.log(result);
+    if (result.status == 200) {
+      setUserBooks(result.data)
+    }
+  }
+
+  const deleteBook = async(id)=>{
+    const result = await deleteAUserBookAPI(id)
+    console.log(result);
+    toast.success(result.data)
+    if(result.status == 200){
+      setDeleteStatus(result.data)
+    }
+    
+  }
+
 
   useEffect(() => {
 
     if (sessionStorage.getItem('token')) {
       const token = sessionStorage.getItem('token')
       setToken(token)
+      const user = JSON.parse(sessionStorage.getItem("existingUser"))
+      setProfile(user.profile)
     }
 
-  }, [])
+  }, [userProfileStatus])
+
+  useEffect(() => {
+    if (userBookStatus == true) {
+      getAllUserBooks()
+    }
+    else if (purchaseBook == true) {
+      getAllUserBroughtBooks()
+    } else {
+      console.log("Something Went wrong");
+
+    }
+  }, [userBookStatus, purchaseBook, deleteStatus])
+
+
+
 
 
 
@@ -185,13 +246,20 @@ const Profile = () => {
 
       <div style={{ height: "200px" }} className=' bg-gray-900'></div>
       <div style={{ width: "230px", height: "230px", borderRadius: "50%", marginLeft: "70px", marginTop: "-150px" }}>
-        <img style={{ height: "200px", width: "200px", borderRadius: "50%" }} src="https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80" alt="" />
+        <img style={{
+          height: "200px",
+          width: "200px",
+          borderRadius: "50%",
+          border: "4px solid white",
+          boxShadow: "0 0 10px rgba(0,0,0,0.15)",
+        }}
+          src={profile == "" ? "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80" : `${serverURL}/uploads/${profile}`} alt="" />
       </div>
 
       <div className=' flex p-5 md:px-20 mt-2 items-center justify-between'>
 
         <div className=' flex flex-wrap justify-center items-center'>
-          <p className=' ms-5 text-3xl'>Abhiram</p>
+          <p className=' ms-5 text-3xl'>Athulkrishna P Shijo</p>
           <FontAwesomeIcon icon={faCircleCheck} className=' text-blue-600 ms-2' />
         </div>
 
@@ -255,7 +323,7 @@ const Profile = () => {
               <div className=' mb-3'>
                 <input value={bookDetails.category} onChange={(e) => setBookDetails({ ...bookDetails, category: e.target.value })} placeholder='Category' type="text" className=' p-2 bg-white rounded placeholder-gray-500 w-full' />
               </div>
-              <div className=' mb-3 flex justify-center-safe items-center w-full'>
+              <div className=' mb-3 flex justify-center-safe items-center w-full '>
                 {!preview ?
 
                   <label htmlFor="imagefile">
@@ -310,73 +378,94 @@ const Profile = () => {
 
         </div>
       }
+
+
       {
         userBookStatus &&
         <div className=' p-10 my-20 shadow rounded'>
-          <div className=' bg-gray-200 p-4 rounded'>
-            <div className=' md:grid grid-cols-[3fr_1fr]'>
-              <div>
-                <h1 className=' text-4xl font-bold'>Title</h1>
-                <h2 className='text-2xl font-semibold'>Author</h2>
-                <h3 className=' text-xl'>$ Price</h3>
-                <p>Abstract : Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos, modi. Quisquam, magni voluptates reprehenderit voluptatibus blanditiis tempore modi cumque quod minima quas omnis consectetur debitis dolore laudantium vitae quos neque.</p>
+          {userBooks?.length > 0 ?
+            userBooks?.map((item) => (
+              <div className=' bg-gray-200 p-4 rounded m-2'>
+                <div className=' md:grid grid-cols-[3fr_1fr]'>
+                  <div>
+                    <h1 className=' text-4xl font-bold'>{item?.title}</h1>
+                    <h2 className='text-2xl font-semibold'>{item?.author}</h2>
+                    <h3 className=' text-xl'>{item?.discountPrice}</h3>
+                    <p>{item?.abstract}</p>
 
-                <div className=' flex'>
-                  <img src="https://psdstamps.com/wp-content/uploads/2022/04/pending-stamp-png.png" style={{ width: "120px" }} alt="Pending..." />
-                  <img src="https://www.citypng.com/public/uploads/preview/hd-green-round-approved-stamp-png-7017516946281143xalzzggez.png?v=2025090208" style={{ width: "100px" }} alt="Pending..." />
-                  <img src="https://png.pngtree.com/png-vector/20230607/ourmid/pngtree-rejected-stamp-with-red-color-vector-png-image_7121303.png" style={{ width: "100px" }} alt="Pending..." />
+                    <div className=' flex'>
+
+                      {item?.status == "pending" ?
+                        <img src="https://psdstamps.com/wp-content/uploads/2022/04/round-pending-stamp-png.png" style={{ width: "120px" }} alt="Pending..." />
+                        : item?.status == "approved" ?
+
+                          <img src="https://cdn-icons-png.flaticon.com/512/4157/4157035.png" style={{ width: "80px" }} alt="Pending..." />
+                          :
+
+                          <img src="https://psdstamps.com/wp-content/uploads/2020/02/round-rejected-stamp-png.png" style={{ width: "120px" }} alt="Pending..." />}
+
+                    </div>
+                  </div>
+                  <div>
+                    <div className=' flex justify-end'>
+                      <img style={{ height: "300px" }} src={item?.imgUrl} alt="img" />
+
+                    </div>                <div className=' flex justify-end mt-4'>
+                      <button onClick={()=>deleteBook(item?._id)} className=' p-3 bg-red-600 text-white rounded'>Delete</button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className=' flex justify-end'>
-                  <img style={{ height: "300px" }} src="https://static-cse.canva.com/blob/2200116/1024w-bVa1FCunN4Y.jpg" alt="" />
+            ))
 
-                </div>                <div className=' flex justify-end mt-4'>
-                  <button className=' p-3 bg-red-600 text-white rounded'>Delete</button>
-                </div>
-              </div>
+            :
+            // no book
+            <div className=' flex  flex-col justify-center items-center'>
+              <img src="https://miro.medium.com/v2/resize:fit:1400/0*GUYQoLJ08bNdTigR.gif" alt="" />
+              <h1 className=' font-bold text-red-600 text-4xl'>No Books Found !</h1>
             </div>
-          </div>
-
-          <div className=' flex  flex-col justify-center items-center'>
-            <img src="https://miro.medium.com/v2/resize:fit:1400/0*GUYQoLJ08bNdTigR.gif" alt="" />
-            <h1 className=' font-bold text-red-600 text-4xl'>No Books Found !</h1>
-          </div>
+          }
 
         </div>
       }
+
+
+
       {
         purchaseBook &&
         <div className=' p-10 my-20 shadow rounded'>
-          <div className=' bg-gray-200 p-4 rounded'>
+          {userBroughtBooks?.length > 0 ?
+          userBroughtBooks?.map((item) => (
+          <div className=' bg-gray-200 p-4 rounded m-2'>
             <div className=' md:grid grid-cols-[3fr_1fr]'>
               <div>
-                <h1 className=' text-4xl font-bold'>Title</h1>
-                <h2 className='text-2xl font-semibold'>Author</h2>
-                <h3 className=' text-xl'>$ Price</h3>
-                <p>Abstract : Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos, modi. Quisquam, magni voluptates reprehenderit voluptatibus blanditiis tempore modi cumque quod minima quas omnis consectetur debitis dolore laudantium vitae quos neque.</p>
+                <h1 className=' text-4xl font-bold'>{item?.title}</h1>
+                <h2 className='text-2xl font-semibold'>{item?.author}</h2>
+                <h3 className=' text-xl'>{item?.discountPrice}</h3>
+                <p>{item?.abstract}</p>
 
-                <div className=' flex'>
-                  <img src="https://psdstamps.com/wp-content/uploads/2022/04/pending-stamp-png.png" style={{ width: "120px" }} alt="Pending..." />
-                  <img src="https://www.citypng.com/public/uploads/preview/hd-green-round-approved-stamp-png-7017516946281143xalzzggez.png?v=2025090208" style={{ width: "100px" }} alt="Pending..." />
-                  <img src="https://cdn-icons-png.flaticon.com/512/6188/6188726.png" style={{ width: "100px" }} alt="Pending..." />
-                </div>
               </div>
               <div>
                 <div className=' flex justify-end'>
-                  <img style={{ height: "300px" }} src="https://static-cse.canva.com/blob/2200116/1024w-bVa1FCunN4Y.jpg" alt="" />
+                  <img style={{ height: "300px" }} src={item?.imgUrl} alt="" />
 
-                </div>                <div className=' flex justify-end mt-4'>
-                  <button className=' p-3 bg-red-600 text-white rounded'>Delete</button>
+                </div>                
+                <div className=' flex justify-end mt-4'>
+                  <button onClick={() => deleteAUserBookAPI(item?._id)} className=' p-3 bg-red-600 text-white rounded'>Delete</button>
                 </div>
               </div>
             </div>
           </div>
+          ))
+            
+
+          :
 
           <div className=' flex  flex-col justify-center items-center'>
             <img src="https://miro.medium.com/v2/resize:fit:1400/0*GUYQoLJ08bNdTigR.gif" alt="" />
             <h1 className=' font-bold text-red-600 text-4xl'>No Books Found !</h1>
           </div>
+          }
 
         </div>
       }

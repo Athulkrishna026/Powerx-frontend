@@ -1,14 +1,18 @@
 import { faFacebookF, faInstagram, faLinkedinIn, faXTwitter } from '@fortawesome/free-brands-svg-icons'
 import { faAddressCard, faBars, faL, faPowerOff, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { userProfileUpdateContext } from '../../context/ContextShare'
+import { serverURL } from '../../services/serverURL'
 
 const Header = () => {
 
   const [visible, setVisible] = useState(false)
   const [dropDownStatus, setDropDownStatus] = useState(false)
   const [token, setToken] = useState("")
+  const [profile, setProfile] = useState("")
+      const { userProfileStatus } = useContext(userProfileUpdateContext)
 
   const show = () => {
 
@@ -25,9 +29,11 @@ const Header = () => {
     if (sessionStorage.getItem("token")) {
       const t = sessionStorage.getItem("token")
       setToken(t)
+      const user = JSON.parse(sessionStorage.getItem("existingUser"))
+      setProfile(user.profile)
     }
 
-  }, [])
+  }, [userProfileStatus])
 
   //console.log(token);
 
@@ -63,7 +69,7 @@ const Header = () => {
                       onClick={() => setDropDownStatus(!dropDownStatus)}
                     >
 
-                      <img src="https://cdn-icons-png.flaticon.com/512/8792/8792047.png" alt="UserLogin" style={{ width: "40px", height: '40px', borderRadius: "50%" }} />
+                      <img style={{ height: "50px", width: "50px", borderRadius: "50%" }} src={ profile ==""? "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80" :`${serverURL}/uploads/${profile}`}  alt="" />
 
                     </button>
                   </div>

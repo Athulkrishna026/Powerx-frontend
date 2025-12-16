@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 *{
-  font-family: "Gentium Book Plus", serif;
+  font-family: "Bricolage Grotesque", sans-serif;
 
 }
 
@@ -11,7 +11,7 @@ body{
 
 
 header{
-  background-image: url('https://png.pngtree.com/background/20230527/original/pngtree-an-old-bookcase-in-a-library-picture-image_2760144.jpg');
+  background-image: url('https://blog.pressreader.com/hubfs/modern-library.png');
   height: 660px;
   width: 100%;
   background-position: center;

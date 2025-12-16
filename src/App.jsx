@@ -15,6 +15,8 @@ import AdminHome from "./admin/pages/AdminHome"
 import { AdminBooks } from "./admin/pages/AdminBooks"
 import AdminSettings from "./admin/pages/AdminSettings"
 import ViewBooks from "./users/pages/ViewBooks"
+import PaymentSuccess from "./users/pages/PaymentSuccess"
+import PaymentError from "./users/pages/PaymentError"
 
 
 function App() {
@@ -24,7 +26,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       setLoading(true)
-    }, 5000)
+    }, 2000)
   }, [])
 
   return (
@@ -39,6 +41,8 @@ function App() {
         <Route path="/view-book/:id" element={<ViewBooks />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Pagenotfound />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-error" element={<PaymentError />} />
 
         <Route path="/admin-home" element={loading ? <AdminHome /> : <Preloader />} />
         <Route path="/admin-books" element={<AdminBooks />} />

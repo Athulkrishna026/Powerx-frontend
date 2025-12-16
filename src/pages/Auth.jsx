@@ -79,7 +79,7 @@ const Auth = ({ register }) => {
 
 
         setTimeout(() => {
-          if (result.data.existingUser.email == "bookStoreAdmin@gmail.com") {
+          if (result.data.existingUser.email == "bookadmin@gmail.com") {
             nav('/admin-home')
           }
           else {
@@ -107,7 +107,7 @@ const Auth = ({ register }) => {
 
 
       setTimeout(() => {
-        if (result.data.existingUser.email == "bookStoreAdmin@gmail.com") {
+        if (result.data.existingUser.email == "bookadmin@gmail.com") {
           nav('/admin-home')
         }
         else {

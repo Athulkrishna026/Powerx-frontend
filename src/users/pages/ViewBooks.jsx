@@ -1,123 +1,189 @@
 import { faEye, faX } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { viewBookApi } from '../../services/allApis';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { makepaymentAPI, viewBookApi } from '../../services/allApis';
 import { serverURL } from '../../services/serverURL';
+import { loadStripe } from '@stripe/stripe-js';
+import { toast, ToastContainer } from 'react-toastify';
 
 const ViewBooks = () => {
 
-    const [modal, setModal] = useState(false)
-    const [book, setBook] = useState({})
-
-    const { id } = useParams()
+    const [modal, setModal] = useState(false);
+    const [book, setBook] = useState({});
+    const [token, setToken] = useState("")
+    
+    const { id } = useParams();
 
 
     const viewBook = async (id) => {
+        const result = await viewBookApi(id);
+        if (result.status === 200) {
+            setBook(result.data);
+        }
+    };
+    console.log(book);
+    
 
-        const result = await viewBookApi(id)
+    const makePayment = async ()=>{
+        console.log(book);
+        const stripe = await loadStripe('pk_test_51SeX1NLOmj0ZOn0vWApOIAXOTSPyZG0gLdLENpTw4r5cqdjnQKG5v05nnY5CX45LwNoMiKlpbJ6SVIsy0yDF6eny00M4gLOBKt');
+        const reqBody ={
+            bookDetails:book
+        }
+        const reqHeader ={
+            "Authorization" : `Bearer ${token}`
+        }
+
+        const result = await makepaymentAPI(reqBody,reqHeader)
         console.log(result);
 
-        if (result.status == 200) {
+        const checkOutURL = result?.data?.url
 
-            setBook(result.data)
-
+        if(checkOutURL){
+            // just redirect to page
+            window.location.href = checkOutURL
+        }else{
+            toast.error("something wrong")
         }
+        
+        
 
     }
 
     useEffect(() => {
-
-        viewBook(id)
-
-    }, [])
-
-
+        viewBook(id);
+        if(sessionStorage.getItem("token")){
+            const token = sessionStorage.getItem("token")
+            setToken(token)
+        }
+    }, []);
 
     return (
-        <div>
+        <div className="w-full flex justify-center py-10 px-5">
 
-            {book &&
-                <div className=' grid md:grid-cols-[1fr_3fr] py-10 px-10 gap-5'>
+            {/* MAIN CONTENT WRAPPER */}
+            <div className="w-full max-w-6xl bg-white p-6 rounded shadow-md">
 
+                {book && (
+                    <div className="grid md:grid-cols-2 gap-10">
 
-                    <div>
-                        <img className=' w-full' src={book?.imgUrl} alt="" />
-                    </div>
+                        {/* LEFT SECTION - BOOK IMAGE */}
+                        <div className="flex justify-center">
+                            <img
+                                className="w-full max-w-sm rounded shadow"
+                                src={book?.imgUrl}
+                                alt="Book"
+                            />
+                        </div>
 
-                    <div>
+                        {/* RIGHT SECTION */}
+                        <div className="flex flex-col gap-6">
 
-                        <div className=' flex justify-end'>
+                            {/* VIEW ICON */}
+                            <div className="flex justify-end">
+                                <FontAwesomeIcon
+                                    icon={faEye}
+                                    className="text-xl cursor-pointer hover:text-blue-600"
+                                    onClick={() => setModal(true)}
+                                />
+                            </div>
 
-                            <div>
-                                <FontAwesomeIcon icon={faEye} onClick={() => setModal(true)} />
+                            {/* TITLE + AUTHOR */}
+                            <div className="text-center">
+                                <h1 className="text-3xl font-bold">{book?.title}</h1>
+                                <h2 className="text-xl font-medium mt-1">{book?.author}</h2>
+                            </div>
+
+                            {/* BOOK DETAILS GRID */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-3 text-gray-700">
+
+                                <div className="bg-gray-100 p-3 rounded shadow-sm">
+                                    <p><strong>Publisher:</strong> {book?.publisher}</p>
+                                </div>
+
+                                <div className="bg-gray-100 p-3 rounded shadow-sm">
+                                    <p><strong>Language:</strong> {book?.language}</p>
+                                </div>
+
+                                <div className="bg-gray-100 p-3 rounded shadow-sm">
+                                    <p><strong>No. of Pages:</strong> {book?.nop}</p>
+                                </div>
+
+                                <div className="bg-gray-100 p-3 rounded shadow-sm">
+                                    <p><strong>Seller Email:</strong> {book?.userMail}</p>
+                                </div>
+
+                                <div className="bg-gray-100 p-3 rounded shadow-sm">
+                                    <p><strong>Price:</strong> ₹{book?.price}</p>
+                                </div>
+
+                                <div className="bg-gray-100 p-3 rounded shadow-sm">
+                                    <p><strong>ISBN:</strong> {book?.isbn}</p>
+                                </div>
+
+                            </div>
+
+                            {/* ABSTRACT */}
+                            <div className="mt-5 bg-gray-50 p-4 rounded shadow-sm leading-relaxed">
+                                <p>{book?.abstract}</p>
+                            </div>
+
+                            {/* BUTTONS */}
+                            <div className="flex justify-end gap-3 mt-5">
+                                <button className="p-2 px-5 bg-red-600 text-white rounded hover:bg-red-700">
+                                    Close
+                                </button>
+                                <button onClick={makePayment} className="p-2 px-5 bg-green-600 text-white rounded hover:bg-green-700">
+                                    Buy ${book?.price}
+                                </button>
                             </div>
 
                         </div>
 
-                        <div className=' flex justify-center items-center flex-col'>
-                            <h1 className=' text-3xl font-bold'>{book?.title}</h1>
-                            <h1 className=' text-2xl font-semibold'>{book?.author}</h1>
-
-
-                        </div>
-
-                        <div className=' grid md:grid-cols-2 lg:grid-cols-3 px-5'>
-
-                            <p>Publisger : {book?.publisher}</p>
-                            <p>Language : {book?.language}</p>
-                            <p>No of Pages : {book?.nop}</p>
-                            <p>Seller mail : {book?.userMail}</p>
-                            <p>{book?.price}</p>
-                            <p>{book?.isbn}</p>
-
-                        </div>
-
-                        <div className=' mt-10'>
-                            <p>{book?.abstract}</p>
-                        </div>
-
-                        <div className=' mt-5 clear-both flex justify-end'>
-                            <div className=' flex gap-2'>
-                                <button className=' p-2 bg-red-600 text-white rounded'>Close</button>
-                                <button className=' p-2 bg-green-600 text-white rounded'>Buy</button>
-                            </div>
-                        </div>
-
                     </div>
+                )}
+            </div>
 
+            {/* MODAL - QUICK PHOTOS */}
+            {modal && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-5 z-50"
+                >
+                    <div className="bg-white rounded shadow-lg w-full max-w-5xl">
 
+                        {/* MODAL HEADER */}
+                        <div className="bg-black text-white px-4 py-3 flex justify-between items-center rounded-t">
+                            <h1 className="text-lg font-semibold">Quick Photos</h1>
+                            <FontAwesomeIcon
+                                icon={faX}
+                                className="cursor-pointer hover:text-red-400"
+                                onClick={() => setModal(false)}
+                            />
+                        </div>
 
+                        {/* MODAL IMAGE GRID */}
+                        <div className="p-5 grid sm:grid-cols-2 md:grid-cols-3 gap-5">
 
+                            {book?.uploadImg?.map((item, index) => (
+                                <div key={index} className="flex justify-center">
+                                    <img
+                                        className="h-60 rounded shadow"
+                                        src={`${serverURL}/upload/${item}`}
+                                        alt="Preview"
+                                    />
+                                </div>
+                            ))}
+
+                        </div>
+                    </div>
                 </div>
+            )}
+                  <ToastContainer theme='colored' position='top-center' autoClose='2000' />
 
-            }
-
-            {modal &&
-                <div id='cardView' style={{ width: "100%", height: "100vh" }} className=' p-5 absolute bottom-0 flex justify-center items-end'>
-
-                    <div className=' flex flex-col justify-center w-2xl md:w-3xl h-auto bg-white rounded p-10'>
-                        <div className=' rounded-t text-white p-2 flex items-center justify-between bg-black'>
-                            <h1>Quick photos</h1>
-                            <FontAwesomeIcon icon={faX} onClick={() => setModal(false)} />
-
-                        </div>
-                        <div className=' h-auto w-full grid sm:grid-cols-2 md:grid-cols-3 gap-5 bg-white rounded-b border border-black p-5'>
-                            {book?.uploadImg.map(item => (
-
-                                <div className=' flex justify-center'><img className=' h-60' src={`${serverURL}/upload/${item}`} alt="cover page" /></div>
-
-                            ))
-
-                            }
-
-                        </div>
-                    </div>
-
-                </div>}
 
         </div>
-    )
-}
+    );
+};
 
-export default ViewBooks
+export default ViewBooks;
