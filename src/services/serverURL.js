@@ -1,1 +1,1 @@
-export const serverURL="https://powerx-backend-uo3j.onrender.com/"
+export const serverURL="https://powerx-backend-uo3j.onrender.com"
