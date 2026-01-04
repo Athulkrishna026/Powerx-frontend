@@ -4,19 +4,19 @@ import AdminSidebar from '../components/AdminSidebar'
 import Footer from '../../components/Footer'
 import { faPencil } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { adminProfileUpdateApi } from '../../services/allApis'
+import {
+  adminProfileUpdateApi,
+  getAllFeedbacksAPI,
+  deleteFeedbackAdminAPI
+} from '../../services/allApis'
 import { serverURL } from '../../services/serverURL'
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { adminProfileUpdateContext } from '../../context/ContextShare'
 
-
-
-
 const AdminSettings = () => {
 
-      const {setAdminProfileStatus} = useContext(adminProfileUpdateContext)
-  
+  const { setAdminProfileStatus } = useContext(adminProfileUpdateContext)
 
   const [adminDetails, setAdminDetails] = useState({
     username: "",
@@ -28,192 +28,240 @@ const AdminSettings = () => {
   const [preview, setPreview] = useState("")
   const [token, setToken] = useState("")
   const [existImg, setExistImg] = useState("")
-    const [updateStatus, setUpdateStatus] = useState({})
+  const [updateStatus, setUpdateStatus] = useState({})
+  const [feedbacks, setFeedbacks] = useState([])
+  const [loadingFeedbacks, setLoadingFeedbacks] = useState(false)
 
-
-
-  console.log(adminDetails);
-
-
+  /* ======================
+      PROFILE IMAGE
+  ====================== */
   const handleAddFile = (e) => {
-
     const file = e.target.files[0]
-
     setAdminDetails({ ...adminDetails, profile: file })
-    console.log(adminDetails);
-
-    if (file) {
-
-      const url = URL.createObjectURL(file)
-      setPreview(url)
-
-    }
-
+    if (file) setPreview(URL.createObjectURL(file))
   }
-  console.log(preview);
 
   const handleReset = () => {
     if (sessionStorage.getItem('token')) {
-      // const t = sessionStorage.getItem('token')
-      // setToken(t)
       const user = JSON.parse(sessionStorage.getItem("existingUser"))
-      setAdminDetails({ username: user.username, password: user.password, cPassword: user.password })
+      setAdminDetails({
+        username: user.username,
+        password: user.password,
+        cPassword: user.password
+      })
       setExistImg(user.profile)
     }
     setPreview("")
-
   }
 
+  /* ======================
+      UPDATE PROFILE
+  ====================== */
   const handleUpdate = async () => {
-
-    const { username, password, cPassword, profile } = adminDetails
+    const { username, password, cPassword } = adminDetails
 
     if (!username || !password || !cPassword) {
-      alert("Please fill the form")
+      toast.warning("Please fill all fields")
+      return
+    }
+
+    if (password !== cPassword) {
+      toast.error("Passwords do not match")
+      return
+    }
+
+    const reqHeader = { Authorization: `Bearer ${token}` }
+    let result
+
+    if (preview) {
+      const reqBody = new FormData()
+      for (let key in adminDetails) reqBody.append(key, adminDetails[key])
+      result = await adminProfileUpdateApi(reqBody, reqHeader)
     } else {
-      if (password != cPassword) {
-        toast.warning("password Must Match...!")
-      } else {
-        if (preview) {
-          const reqHeader = {
-            "Authorization": `Bearer ${token}`
-          }
+      result = await adminProfileUpdateApi(
+        { username, password, profile: existImg },
+        reqHeader
+      )
+    }
 
-          const reqBody = new FormData()
-
-          for (let key in adminDetails) {
-            reqBody.append(key, adminDetails[key])
-          }
-          const result = await adminProfileUpdateApi(reqBody, reqHeader)
-          console.log(result);
-          if(result.status == 200){
-            toast.success("Profile Updated..")
-            sessionStorage.setItem("existingUser",JSON.stringify(result.data))
-            setUpdateStatus(result.data)
-            setAdminProfileStatus(result.data)
-          }else{
-            toast.error("Something Went Wrong....")
-            setUpdateStatus({})
-          }
-        }else{
-          const reqHeader = {
-        "Authorization": `Bearer ${token}`
-      }
-      const result = await adminProfileUpdateApi({username,password,profile:existImg}, reqHeader)
-      console.log(result);
-      if(result.status == 200){
-            toast.success("Profile Updated..")
-            sessionStorage.setItem("existingUser",JSON.stringify(result.data))
-            setUpdateStatus(result.data)
-            setAdminProfileStatus(result.data)
-
-          }else{
-            toast.error("Something Went Wrong....")
-            setUpdateStatus({})
-          }
-        }
-      }
+    if (result.status === 200) {
+      toast.success("Profile Updated Successfully")
+      sessionStorage.setItem("existingUser", JSON.stringify(result.data))
+      setUpdateStatus(result.data)
+      setAdminProfileStatus(result.data)
+    } else {
+      toast.error("Something went wrong")
     }
   }
 
+  /* ======================
+      GET FEEDBACKS
+  ====================== */
+  const getFeedbacks = async () => {
+    setLoadingFeedbacks(true)
+    const token = sessionStorage.getItem("token")
+    const reqHeader = { Authorization: `Bearer ${token}` }
+
+    const result = await getAllFeedbacksAPI(reqHeader)
+    setLoadingFeedbacks(false)
+
+    if (result.status === 200) {
+      setFeedbacks(result.data)
+    } else {
+      toast.error("Failed to fetch feedbacks")
+    }
+  }
+
+  /* ======================
+      DELETE FEEDBACK
+  ====================== */
+  const handleDeleteFeedback = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this feedback?")
+    if (!confirmDelete) return
+
+    const token = sessionStorage.getItem("token")
+    const reqHeader = { Authorization: `Bearer ${token}` }
+
+    const result = await deleteFeedbackAdminAPI(id, reqHeader)
+
+    if (result.status === 200) {
+      toast.success("Feedback deleted successfully")
+      getFeedbacks()
+    } else {
+      toast.error("Failed to delete feedback")
+    }
+  }
 
   useEffect(() => {
     if (sessionStorage.getItem('token')) {
       const t = sessionStorage.getItem('token')
       setToken(t)
       const user = JSON.parse(sessionStorage.getItem("existingUser"))
-      setAdminDetails({ username: user.username, password: user.password, cPassword: user.password })
+      setAdminDetails({
+        username: user.username,
+        password: user.password,
+        cPassword: user.password
+      })
       setExistImg(user.profile)
+      getFeedbacks()
     }
   }, [updateStatus])
-
-
 
   return (
     <>
       <AdminHeader />
 
-      <div className=' grid md:grid-cols-[1fr_4fr]'>
+      <div className="grid md:grid-cols-[260px_1fr] min-h-screen bg-gradient-to-br from-black via-slate-900 to-black text-white">
+        <AdminSidebar />
 
-        <div>
-          <AdminSidebar />
-        </div>
-        <div>
-          <h1 className=' text-center text-3xl'>Settings</h1>
-          <div className=' grid md:grid-cols-2'>
+        <div className="p-10 pb-20">
 
-            <div className=' flex justify-center items-center px-10 py-5'>
-              <p className=' text-justify'>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed vel quam esse sequi odio ducimus consequuntur excepturi in. Beatae voluptatibus fugiat illo placeat atque in necessitatibus eaque aliquam molestiae ratione.
-                Incidunt reprehenderit quaerat ab quas sit aperiam eius quia, illo iste et optio ratione sunt? Est assumenda maxime perferendis aut! Optio, provident. Dolor sed rerum repellendus exercitationem. <br />
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Error libero asperiores ex atque ea inventore temporibus deserunt dignissimos nesciunt sed, dolorum at expedita repellat porro itaque, consectetur aperiam nostrum nam!
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repudiandae excepturi neque culpa aliquam ab laudantium harum, dolor blanditiis, fugit mollitia nulla iste fuga quis voluptate aut? Adipisci ducimus facilis vero!
-              </p>
+          <h1 className="text-3xl font-bold mb-10">Admin Setting</h1>
+
+          {/* ================= PROFILE ================= */}
+          <div className="grid md:grid-cols-2 gap-10">
+
+            <div className="bg-white/10 border border-white/20 rounded-2xl p-8 text-gray-300">
+              Manage your admin profile settings here.
             </div>
-            <div className=' p-5'>
-              <div className=' bg-blue-300 p-10 rounded'>
 
-                <div className=' flex flex-col'>
-                  <div className="md:px-10 lg:px-20 pb-5 flex flex-col items-center justify-center gap-3">
+            <div className="bg-white/10 border border-white/20 rounded-2xl p-8">
 
-                    {
-                      existImg == "" ?
-                        <img
-                          className="w-32 h-32 rounded-full"
-                          src={preview ? preview : "https://www.pngmart.com/files/21/Admin-Profile-Vector-PNG-Clipart.png"}
-                          alt="img"
-                        />
-                        :
-                        <img
-                          className="w-32 h-32 rounded-full"
-                          src={preview ? preview : `${serverURL}/uploads/${existImg}`}
-                          alt="img"
-                        />
-                    }
+              <div className="flex flex-col items-center gap-4 mb-6">
+                <img
+                  className="w-32 h-32 rounded-full border-2 border-cyan-400"
+                  src={
+                    preview
+                      ? preview
+                      : existImg
+                        ? `${serverURL}/uploads/${existImg}`
+                        : "https://www.pngmart.com/files/21/Admin-Profile-Vector-PNG-Clipart.png"
+                  }
+                  alt="admin"
+                />
 
-                    <div className="flex justify-center">
-                      <input
-                        type="file"
-                        id="file"
-                        className="hidden"
-                        onChange={(e) => handleAddFile(e)}
-                      />
-                      <label
-                        htmlFor="file"
-                        className="bg-yellow-500 p-2 lg:p-3 rounded text-white cursor-pointer"
-                      >
-                        <FontAwesomeIcon icon={faPencil} />
-                      </label>
-                    </div>
+                <label htmlFor="file" className="cursor-pointer">
+                  <FontAwesomeIcon icon={faPencil} />
+                </label>
 
-                  </div>
+                <input type="file" id="file" hidden onChange={handleAddFile} />
+              </div>
 
-                  <div className=' flex flex-col w-full gap-3'>
-                    <input value={adminDetails.username} onChange={(e) => setAdminDetails({ ...adminDetails, username: e.target.value })} type="text" className=' bg-white rounded p-2' placeholder=' Username' />
-                    <input value={adminDetails.password} onChange={(e) => setAdminDetails({ ...adminDetails, password: e.target.value })} type="text" className=' bg-white rounded p-2' placeholder=' Password' />
-                    <input value={adminDetails.cPassword} onChange={(e) => setAdminDetails({ ...adminDetails, cPassword: e.target.value })} type="text" className=' bg-white rounded p-2' placeholder=' Confirm Password' />
-                    <div className=' flex justify-evenly gap-3'>
-                      <button type='button' onClick={handleReset} className=' w-full p-2 bg-red-600 text-white rounded'>Reset</button>
-                      <button type='button' onClick={handleUpdate} className=' w-full p-2 bg-green-600 text-white rounded'>Update</button>
-                    </div>
-                  </div>
+              <div className="flex flex-col gap-4">
+                <input
+                  value={adminDetails.username}
+                  onChange={(e) => setAdminDetails({ ...adminDetails, username: e.target.value })}
+                  className="p-3 bg-black/40 rounded"
+                  placeholder="Username"
+                />
+                <input
+                  type="password"
+                  value={adminDetails.password}
+                  onChange={(e) => setAdminDetails({ ...adminDetails, password: e.target.value })}
+                  className="p-3 bg-black/40 rounded"
+                  placeholder="Password"
+                />
+                <input
+                  type="password"
+                  value={adminDetails.cPassword}
+                  onChange={(e) => setAdminDetails({ ...adminDetails, cPassword: e.target.value })}
+                  className="p-3 bg-black/40 rounded"
+                  placeholder="Confirm Password"
+                />
+
+                <div className="flex gap-4">
+                  <button onClick={handleReset} className="w-full bg-red-500/30 p-3 rounded">Reset</button>
+                  <button onClick={handleUpdate} className="w-full bg-green-500/30 p-3 rounded">Update</button>
                 </div>
-
               </div>
             </div>
-
           </div>
-        </div>
 
+          {/* ================= FEEDBACK ================= */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">User Feedbacks</h2>
+
+            {loadingFeedbacks ? (
+              <p>Loading...</p>
+            ) : feedbacks.length > 0 ? (
+              feedbacks.map((feedback) => (
+                <div key={feedback._id} className="bg-white/10 border border-white/20 rounded-xl p-6 mb-4">
+
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="font-semibold">
+                        {feedback.username || feedback.userId?.username}
+                      </h3>
+                      <p className="text-sm text-gray-400">
+                        {new Date(feedback.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => handleDeleteFeedback(feedback._id)}
+                      className="bg-red-500/30 px-3 py-1 rounded text-red-400"
+                    >
+                      Delete
+                    </button>
+                  </div>
+
+                  <p className="mt-3">{feedback.message}</p>
+
+                  <p className="text-yellow-400 mt-2">
+                    {"⭐".repeat(feedback.rating)} ({feedback.rating}/5)
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p>No feedbacks available</p>
+            )}
+          </div>
+
+        </div>
       </div>
 
-
       <Footer />
-      <ToastContainer
-    position="top-center"
-    autoClose={2000}
-    theme="colored"
-  />
+      <ToastContainer position="top-center" autoClose={2000} theme="colored" />
     </>
   )
 }

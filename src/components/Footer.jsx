@@ -1,55 +1,113 @@
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import { faInstagram, faXTwitter, faFacebook, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import React from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRight, faToolbox } from '@fortawesome/free-solid-svg-icons'
+import { faInstagram, faXTwitter, faFacebook, faLinkedin } from '@fortawesome/free-brands-svg-icons'
 
 const Footer = () => {
   return (
     <>
-      <footer className="bg-[#0B1320] text-white px-6 md:px-20 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      {/* Main Footer */}
+      <footer
+        className="bg-gradient-to-br from-black via-slate-900 to-black
+                   text-white px-6 md:px-20 py-14
+                   border-t border-white/10"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+
+          {/* About */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">ABOUT US</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <FontAwesomeIcon icon={faToolbox} className="text-yellow-400 text-xl" />
+              <h2 className="text-lg font-semibold tracking-wide">
+                PowerX
+              </h2>
+            </div>
+
             <p className="text-gray-300 text-sm leading-relaxed">
-              At our bookstore, we believe every book holds the power to change a life. We bring together stories that inspire, educate, and spark imagination. Whether you're a dreamer, a learner, or a wanderer — there’s a book here waiting for you
+              We provide premium-quality power tools on rent for professionals
+              and home users. From drilling and cutting to demolition and
+              finishing, our tools are reliable, affordable, and ready to
+              perform.
             </p>
           </div>
 
+          {/* Newsletter */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">NEWSLETTER</h2>
-            <p className="text-gray-300 text-sm mb-4">Stay updated with our latest trends</p>
-            <div className="flex">
+            <h2 className="text-lg font-semibold mb-4 tracking-wide">
+              NEWSLETTER
+            </h2>
+
+            <p className="text-gray-300 text-sm mb-4">
+              Get updates on new tools, offers, and rental plans.
+            </p>
+
+            <div className="flex max-w-sm">
               <input
                 type="email"
-                placeholder="Enter Your Email ID"
-                className="w-100px p-2 rounded-l bg-white text-black placeholder-gray-500 focus:outline-none"
+                placeholder="Enter your email"
+                className="flex-1 p-3 rounded-l-lg
+                           bg-white/90 text-black
+                           placeholder-gray-500
+                           focus:outline-none"
               />
 
-              <button className="bg-yellow-400 text-black px-2 rounded-r">
+              <button
+                className="px-4 rounded-r-lg
+                           bg-yellow-400 text-black
+                           hover:bg-yellow-300 transition"
+              >
                 <FontAwesomeIcon icon={faArrowRight} />
               </button>
             </div>
           </div>
 
+          {/* Social */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">FOLLOW US</h2>
-            <p className="text-gray-300 text-sm mb-4">Let us be social</p>
-            <div className="flex space-x-4 text-xl">
-              <FontAwesomeIcon icon={faInstagram} className="hover:text-yellow-400 cursor-pointer" />
-              <FontAwesomeIcon icon={faXTwitter} className="hover:text-yellow-400 cursor-pointer" />
-              <FontAwesomeIcon icon={faFacebook} className="hover:text-yellow-400 cursor-pointer" />
-              <FontAwesomeIcon icon={faLinkedin} className="hover:text-yellow-400 cursor-pointer" />
+            <h2 className="text-lg font-semibold mb-4 tracking-wide">
+              FOLLOW US
+            </h2>
+
+            <p className="text-gray-300 text-sm mb-4">
+              Stay connected with us
+            </p>
+
+            <div className="flex gap-5 text-xl">
+              <FontAwesomeIcon
+                icon={faInstagram}
+                className="cursor-pointer hover:text-yellow-400 transition"
+              />
+              <FontAwesomeIcon
+                icon={faXTwitter}
+                className="cursor-pointer hover:text-yellow-400 transition"
+              />
+              <FontAwesomeIcon
+                icon={faFacebook}
+                className="cursor-pointer hover:text-yellow-400 transition"
+              />
+              <FontAwesomeIcon
+                icon={faLinkedin}
+                className="cursor-pointer hover:text-yellow-400 transition"
+              />
             </div>
           </div>
+
         </div>
       </footer>
 
-      <div className="bg-black text-center text-white py-3 text-sm">
-        Copyright © 2025 All rights reserved | This website is made with ❤️ by{' '}
-        <span className="font-semibold text-yellow-400">Athul</span>
+      {/* Bottom Bar */}
+      <div
+        className="bg-black/90 backdrop-blur-md
+                   text-center text-gray-300
+                   py-4 text-sm border-t border-white/10"
+      >
+        © 2025 All rights reserved | Built with ❤️ by{' '}
+        <span className="text-yellow-400 font-semibold">
+          Athul
+        </span>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer
+
