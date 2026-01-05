@@ -32,7 +32,9 @@ const AdminHeader = () => {
     // )
 
     return (
-        <nav className="w-full px-6 py-4 bg-gradient-to-r from-black via-slate-900 to-black">
+<nav className="sticky top-0 z-50 w-full px-6 py-4 
+                bg-gradient-to-r from-black via-slate-900 to-black 
+                backdrop-blur-xl">
             <div className="max-w-7xl mx-auto flex items-center justify-between pt-3 pb-3">
 
                 {/* Logo */}

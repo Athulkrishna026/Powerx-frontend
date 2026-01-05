@@ -12,7 +12,7 @@ import {
 } from "../../services/allApis";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faToolbox, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { serverURL } from "../../services/serverURL";
 
 export const AdminBooks = () => {
@@ -79,25 +79,18 @@ export const AdminBooks = () => {
           {/* ================= HEADER ================= */}
           <div className="flex items-center justify-between mb-10">
             <h1 className="text-3xl font-bold tracking-wide">
-              Tool/ User Management
+              Tool / User Management
             </h1>
 
             <button
               onClick={() => setShowProfile(true)}
-              className="
-                px-6 py-2 rounded-xl
-                bg-gradient-to-r from-cyan-500/30 to-indigo-500/30
-                border border-cyan-400 text-cyan-300
-                hover:from-cyan-500/40 hover:to-indigo-500/40
-                transition shadow-lg
-              "
+              className="px-6 py-2 rounded-xl bg-gradient-to-r from-cyan-500/30 to-indigo-500/30
+                         border border-cyan-400 text-cyan-300 hover:from-cyan-500/40
+                         hover:to-indigo-500/40 transition shadow-lg"
             >
               Add Tool <FontAwesomeIcon icon={faPlus} />
             </button>
           </div>
-
-          {/* ================= STATS ================= */}
-         
 
           {/* ================= TABS ================= */}
           <div className="flex justify-center gap-3 mb-10">
@@ -131,44 +124,72 @@ export const AdminBooks = () => {
                 className="search-input mb-10"
               />
 
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {allBooks
-                  .filter((b) =>
-                    b.title?.toLowerCase().includes(toolSearch.toLowerCase())
-                  )
-                  .map((book) => (
-                    <div key={book._id} className="tool-card">
-                      <div className="relative">
-                        <img
-                          src={book.imgUrl}
-                          alt={book.title}
-                          className="h-64 w-full object-cover rounded-xl"
-                        />
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+  {allBooks
+    .filter((b) =>
+      b.title?.toLowerCase().includes(toolSearch.toLowerCase())
+    )
+    .map((book) => (
+      <div
+        key={book._id}
+        className="
+          bg-white/10 backdrop-blur-xl
+          border border-white/20 rounded-2xl
+          p-4 text-white
+          transition-all duration-300
+          hover:-translate-y-2
+          hover:shadow-[0_20px_40px_rgba(59,130,246,0.25)]
+        "
+      >
+        {/* IMAGE + CATEGORY */}
+        <div className="relative">
+          <img
+            src={book.imgUrl}
+            alt={book.title}
+            className="w-full h-44 object-cover rounded-xl mb-3"
+          />
 
-                        {book.category && (
-                          <span className="category-badge">
-                            {book.category}
-                          </span>
-                        )}
-                      </div>
+          {book.category && (
+            <span
+              className="
+                absolute top-3 left-3
+                px-3 py-1 rounded-full
+                text-xs font-semibold
+                bg-gradient-to-r from-indigo-500 to-cyan-500
+                text-white shadow-lg
+              "
+            >
+              {book.category}
+            </span>
+          )}
+        </div>
 
-                      <h2 className="mt-3 text-lg font-semibold">
-                        {book.title}
-                      </h2>
+        {/* TITLE */}
+        <p className="text-gray-300 text-sm truncate">
+          {book.title}
+        </p>
 
-                      <p className="text-amber-400 font-semibold">
-                        ₹{book.price}
-                      </p>
+        {/* PRICE */}
+        <p className="font-semibold text-amber-400">
+          Rent – ₹{book.price ?? "N/A"}
+        </p>
 
-                      <button
-                        onClick={() => handleDeleteBook(book._id)}
-                        className="delete-btn"
-                      >
-                        Delete Tool
-                      </button>
-                    </div>
-                  ))}
-              </div>
+        {/* DELETE BUTTON */}
+        <button
+          onClick={() => handleDeleteBook(book._id)}
+          className="
+            mt-4 w-full py-2 rounded-xl
+            bg-red-500/20 border border-red-400/30
+            text-red-300 hover:bg-red-500/30
+            transition
+          "
+        >
+          Delete Tool
+        </button>
+      </div>
+    ))}
+</div>
+
             </>
           )}
 
@@ -183,34 +204,106 @@ export const AdminBooks = () => {
                 className="search-input mb-10"
               />
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {users
-                  .filter((u) =>
-                    u.username?.toLowerCase().includes(userSearch.toLowerCase())
-                  )
-                  .map((user) => (
-                    <div key={user._id} className="user-card">
-                      {user.profile && (
-                        <img
-                          src={`${serverURL}/uploads/${user.profile}`}
-                          alt=""
-                          className="h-24 w-24 rounded-full mb-4 object-cover"
-                        />
-                      )}
-                      <h2 className="text-cyan-400 font-semibold">
-                        {user.username}
-                      </h2>
-                      <p>{user.email}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+  {users
+    // ❌ EXCLUDE ADMIN
+    .filter(
+      (u) =>
+        u.email !== "admin" &&
+        u.username?.toLowerCase() !== "admin"
+    )
+    // 🔍 SEARCH
+    .filter((u) => {
+      if (!userSearch) return true;
+      const key = userSearch.toLowerCase();
+      return (
+        u.username?.toLowerCase().includes(key) ||
+        u.email?.toLowerCase().includes(key)
+      );
+    })
+    .map((user) => (
+      <div
+        key={user._id}
+        className="
+          bg-white/10 backdrop-blur-xl
+          border border-white/20 rounded-2xl
+          p-6 text-white
+          transition-all duration-300
+          hover:-translate-y-2
+          hover:shadow-[0_20px_40px_rgba(59,130,246,0.25)]
+        "
+      >
+        {/* PROFILE IMAGE */}
+        <div className="flex justify-center">
+          {user.profile ? (
+            <img
+              src={`${serverURL}/uploads/${user.profile}`}
+              alt={`${user.username} profile`}
+              className="h-24 w-24 rounded-full object-cover mb-4
+                         border-2 border-cyan-400/50"
+            />
+          ) : (
+            <div
+              className="h-24 w-24 rounded-full mb-4
+                         flex items-center justify-center
+                         bg-cyan-500/20 text-cyan-300 text-2xl font-bold"
+            >
+              {user.username?.charAt(0).toUpperCase()}
+            </div>
+          )}
+        </div>
 
-                      <button
-                        onClick={() => handleDeleteUser(user._id)}
-                        className="delete-btn mt-4"
-                      >
-                        Delete User
-                      </button>
-                    </div>
-                  ))}
-              </div>
+        {/* USER INFO */}
+        <h2 className="text-xl text-cyan-400 font-semibold text-center mb-3">
+          {user.username}
+        </h2>
+
+        <div className="space-y-1 text-sm text-white/80">
+          <p>
+            <span className="text-white/50">Email:</span>{" "}
+            {user.email || "—"}
+          </p>
+
+          <p>
+            <span className="text-white/50">Mobile:</span>{" "}
+            {user.mob || "—"}
+          </p>
+
+          <p>
+            <span className="text-white/50">Address:</span>{" "}
+            {user.address || "—"}
+          </p>
+
+          <p>
+            <span className="text-white/50">Aadhar:</span>{" "}
+            {user.aadhar || "—"}
+          </p>
+
+          
+
+          
+
+          <p className="italic text-white/60 pt-2">
+            Status : {user.bio || "No bio provided"}
+          </p>
+        </div>
+
+        {/* DELETE BUTTON */}
+        <button
+          onClick={() => handleDeleteUser(user._id)}
+          className="
+            mt-5 w-full py-2 rounded-xl
+            bg-red-500/20 border border-red-400/30
+            text-red-300 hover:bg-red-500/30
+            transition
+          "
+        >
+          Delete User
+        </button>
+      </div>
+    ))}
+</div>
+
             </>
           )}
         </div>
@@ -230,15 +323,6 @@ export const AdminBooks = () => {
       {/* ================= STYLES ================= */}
       <style>
         {`
-          .glass-card {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(18px);
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-          }
-
           .tool-card, .user-card {
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(16px);
@@ -246,23 +330,6 @@ export const AdminBooks = () => {
             border-radius: 20px;
             padding: 16px;
             transition: all 0.3s ease;
-          }
-
-          .tool-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-          }
-
-          .category-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: bold;
-            background: linear-gradient(135deg,#6366f1,#22d3ee);
-            color: white;
           }
 
           .search-input {

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { chatWithAIAPI } from "../../services/allApis";
 
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
@@ -9,30 +10,35 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+  if (!input.trim()) return;
 
-    setMessages(prev => [...prev, { role: "user", text: input }]);
-    setLoading(true);
+  setMessages(prev => [...prev, { role: "user", text: input }]);
+  setLoading(true);
 
-    try {
-      const res = await fetch("http://localhost:4000/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input })
-      });
+  try {
+    const result = await chatWithAIAPI({ message: input });
 
-      const data = await res.json();
-      setMessages(prev => [...prev, { role: "ai", text: data.reply }]);
-    } catch {
+    if (result.status === 200) {
       setMessages(prev => [
         ...prev,
-        { role: "ai", text: "⚠️ AI server error. Try again." }
+        { role: "ai", text: result.data.reply }
       ]);
-    } finally {
-      setLoading(false);
-      setInput("");
+    } else {
+      throw new Error("AI response failed");
     }
-  };
+
+  } catch (err) {
+    console.error("Chatbot error:", err);
+    setMessages(prev => [
+      ...prev,
+      { role: "ai", text: "⚠️ AI server error. Try again." }
+    ]);
+  } finally {
+    setLoading(false);
+    setInput("");
+  }
+};
+
 
   return (
     <>

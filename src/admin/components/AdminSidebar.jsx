@@ -130,7 +130,7 @@ const AdminSidebar = () => {
           `}
         >
           <FontAwesomeIcon icon={faBook} />
-          {open && <span>All Tools</span>}
+          {open && <span>Tools / Users List</span>}
         </div>
 
         <div

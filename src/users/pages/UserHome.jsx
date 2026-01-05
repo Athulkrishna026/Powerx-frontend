@@ -6,6 +6,7 @@ import { getMyRentalsAPI } from "../../services/allApis";
 import Chatbot from "../components/Chatbot";
 import { createUserStripeSessionAPI } from "../../services/allApis";
 import { toast } from "react-toastify";
+import Footer from "../../components/Footer";
 
 
 const UserHome = () => {
@@ -207,6 +208,7 @@ const UserHome = () => {
 
         </div>
       </div>
+      <Footer />
       <Chatbot />
     </>
   );

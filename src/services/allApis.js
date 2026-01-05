@@ -171,6 +171,7 @@ export const getUserCountAPI = async () => {
   return await commonApi("GET", `${serverURL}/users-count`)
 }
 
+
 // ADMIN – get all rental bookings
 export const getAllAdminBookingsAPI = (reqHeader) => {
   return commonApi(
@@ -214,6 +215,11 @@ export const getRentalsCountAPI = async (reqHeader) => {
   return await commonApi("GET", `${serverURL}/rentals-count`, "", reqHeader);
 };
 
+// ================= FEEDBACKS =================
+export const getFeedbacksCountAPI = async (reqHeader) => {
+  return await commonApi("GET", `${serverURL}/feedback-count`, "", reqHeader);
+};
+
 export const addFeedbackAPI = async (reqBody, reqHeader) => {
   return await commonApi(
     "POST",
@@ -241,6 +247,19 @@ export const deleteFeedbackAdminAPI = async (id, reqHeader) => {
     reqHeader
   );
 };
+
+
+// ================= AI CHATBOT =================
+export const chatWithAIAPI = async (reqBody) => {
+  return await commonApi(
+    "POST",
+    `${serverURL}/chat`,
+    reqBody
+  );
+};
+
+
+
 
 
 

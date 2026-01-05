@@ -119,14 +119,7 @@ const ViewBooks = () => {
                   Close
                 </button>
 
-                <button
-                  onClick={makePayment}
-                  className="flex-1 py-3 rounded-full
-                             bg-blue-600 border border-blue-400
-                             hover:bg-blue-700 transition"
-                >
-                  Take Rent
-                </button>
+              
 
               </div>
 

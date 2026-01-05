@@ -191,8 +191,9 @@ const AllBooks = () => {
                       )}
                     </div>
 
-                    <p className="font-semibold">{book.author}</p>
+                    
                     <p className="text-gray-300 text-sm">{book.title}</p>
+                    <p className="font-semibold">Rent - ₹{book.price}</p>
 
                     <Link to={`/view-book/${book._id}`}>
                       <button

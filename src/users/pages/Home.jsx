@@ -17,6 +17,8 @@ import Chatbot from "../components/Chatbot";
 const Home = () => {
 
   const [homeTools, setHomeTools] = useState([])
+  const [menuOpen, setMenuOpen] = useState(false);
+
 
 
   const navigate = useNavigate();
@@ -98,7 +100,7 @@ const Home = () => {
 
             <ul className="hidden md:flex gap-10 text-gray-300">
               <li className="idden md:block bg-white/10 border border-white/20 text-white px-5 py-2 rounded-full ">Home</li>
-              <Link to="/all-books">
+              <Link to="/logininit">
                 <li className="idden md:block bg-white/10 border border-white/20 text-white px-5 py-2 rounded-full ">Tools</li>
               </Link>
               <li className="idden md:block bg-white/10 border border-white/20 text-white px-5 py-2 rounded-full "><a href="#contact">Contact</a></li>
@@ -126,10 +128,24 @@ const Home = () => {
               </Link>
             )}
 
-            <button className="md:hidden text-white">
-              <FontAwesomeIcon icon={faBars} />
-            </button>
+            <button
+  className="md:hidden text-white"
+  onClick={() => setMenuOpen(!menuOpen)}
+>
+  <FontAwesomeIcon icon={faBars} />
+</button>
+
           </nav>
+          {menuOpen && (
+  <div className="md:hidden mt-4 bg-white/10 backdrop-blur-xl
+                  border border-white/20 rounded-2xl p-4 space-y-3">
+    <Link to="/" className="block text-white">Home</Link>
+    <Link to="/login" className="block text-white">Tools</Link>
+    <Link to="/rate-card" className="block text-white">Rate Card</Link>
+    <a href="#contact" className="block text-white">Contact</a>
+  </div>
+)}
+
 
           {/* ------------ HERO ------------ */}
           <section id="hero" className="grid md:grid-cols-2 gap-10 items-center mb-16">
@@ -241,196 +257,353 @@ const Home = () => {
             </p>
 
             <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  {homeTools.length > 0 ? (
+    homeTools.map((tool) => (
+      <div
+        key={tool._id}
+        className="
+          bg-white/10 backdrop-blur-xl
+          border border-white/20 rounded-2xl
+          overflow-hidden
+          transition-all duration-300
+          hover:-translate-y-2
+          hover:shadow-[0_20px_40px_rgba(59,130,246,0.35)]
+        "
+      >
+        {/* IMAGE WRAPPER (FIXED SIZE) */}
+        <div className="relative w-full h-48 overflow-hidden">
+          <img
+            src={tool.imgUrl}
+            alt={tool.title}
+            className="
+              w-full h-full object-cover
+              transition-transform duration-500
+              hover:scale-110
+            "
+          />
 
-              {homeTools.length > 0 ? (
-                homeTools.map((tool) => (
-                  <div
-                    key={tool._id}
-                    className="backdrop-blur bg-white/10 border border-white/20 rounded-2xl p-4 hover:bg-white/20 transition"
-                  >
-                    <img
-                      src={tool.imgUrl}
-                      alt={tool.title}
-                      className=" w-full object-cover rounded-xl mb-4"
-                    />
+          {/* Optional category badge */}
+          {tool.category && (
+            <span
+              className="
+                absolute top-3 left-3
+                px-3 py-1 rounded-full
+                text-xs font-semibold
+                bg-gradient-to-r from-indigo-500 to-cyan-500
+                text-white shadow-lg
+              "
+            >
+              {tool.category}
+            </span>
+          )}
+        </div>
 
-                    <h3 className="text-lg font-semibold text-white">
-                      {tool.title}
-                    </h3>
+        {/* CONTENT */}
+        <div className="p-4 text-white">
+          <h3 className="text-lg font-semibold truncate">
+            {tool.title}
+          </h3>
 
-                    <p className="text-sm text-gray-300">
-                      ₹{tool.price} / day
-                    </p>
+          <p className="text-sm text-gray-300 mt-1">
+            ₹{tool.price} <span className="text-xs">/ day</span>
+          </p>
 
-                    <button
-                      className="mt-4 w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition"
-                    >
-                      Rent Now
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-400 col-span-full text-center">
-                  No tools available right now
-                </p>
-              )}
+          
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-400 col-span-full text-center">
+      No tools available right now
+    </p>
+  )}
+</div>
 
-            </div>
 
-            <Link to="/login" className="block w-fit mx-auto pt-6">
-              <button className="bg-white/10 border border-white/20 text-white px-5 py-2 rounded-full hover:bg-blue-600 transition">
-                Login to Start Service
-              </button>
-            </Link>
+            <Link to="/login" className="flex justify-center pt-6">
+  <button
+    className="
+      px-8 py-3 rounded-full
+      bg-gradient-to-r from-blue-500 to-indigo-600
+      text-white font-semibold tracking-wide
+      shadow-lg shadow-blue-500/30
+      transition-all duration-300
+      hover:from-blue-600 hover:to-indigo-700
+      hover:scale-105
+      active:scale-95
+      border border-white/20
+    "
+  >
+    🚀 Login to Start Service
+  </button>
+</Link>
+
           </section>
 
 
 
 
           {/* ------------ FEATURES ------------ */}
-          <section className="mb-20">
-            <h2 className="text-3xl font-bold text-white mb-2">
-              Why Choose PowerX?
-            </h2>
-            <p className="text-gray-400 mb-10">
-              Premium tools. Flexible rentals.
-            </p>
+          <section className="mb-20 text-center">
+  <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+    Why Choose <span className="text-cyan-400">PowerX</span>?
+  </h2>
 
-            <div className="grid md:grid-cols-4 gap-6">
-              <FeatureCard icon={faBolt} title="Industrial Quality" desc="Top-tier durable tools." />
-              <FeatureCard icon={faClock} title="Flexible Durations" desc="Rent hourly, daily, weekly." />
-              <FeatureCard icon={faShieldHalved} title="Damage Protection" desc="Full safety guarantee." />
-              <FeatureCard icon={faScrewdriverWrench} title="100+ Tools" desc="Wide range for any task." />
-            </div>
-          </section>
+  <p className="text-gray-400 mb-12 max-w-xl mx-auto">
+    Industrial-grade tools with flexible rentals, built for professionals and businesses.
+  </p>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <FeatureCard
+      icon={faBolt}
+      title="Industrial Quality"
+      desc="Top-tier tools designed for heavy-duty performance."
+    />
+    <FeatureCard
+      icon={faClock}
+      title="Flexible Durations"
+      desc="Rent tools hourly, daily, or weekly as per your need."
+    />
+    <FeatureCard
+      icon={faShieldHalved}
+      title="Damage Protection"
+      desc="Complete safety coverage for peace of mind."
+    />
+    <FeatureCard
+      icon={faScrewdriverWrench}
+      title="100+ Tools"
+      desc="A wide range of tools for every task."
+    />
+  </div>
+</section>
+
 
           {/* ------------ TESTIMONIAL ------------ */}
-          <section id="reviews" className="mb-20 text-center">
-            <div className="max-w-3xl mx-auto backdrop-blur bg-white/10 border border-white/20 rounded-2xl p-10">
-              <FontAwesomeIcon icon={faQuoteLeft} className="text-3xl text-blue-400 mb-4" />
-              <p className="text-gray-200 italic">
-                “A complete game changer! Renting tools from PowerX is smoother than ever.”
-              </p>
-              <p className="mt-4 font-semibold text-white">Rahul Menon</p>
-              <p className="text-xs text-gray-400">Contract Engineer</p>
-            </div>
-          </section>
+          <section id="reviews" className="mb-24 text-center relative">
+  {/* subtle background glow */}
+  <div className="absolute inset-0 -z-10 flex justify-center">
+    <div className="w-96 h-96 bg-blue-500/20 blur-[120px] rounded-full"></div>
+  </div>
+
+  <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+    What Our Customers Say
+  </h2>
+  <p className="text-gray-400 mb-12">
+    Trusted by professionals across industries
+  </p>
+
+  <div
+    className="
+      max-w-3xl mx-auto
+      bg-white/10 backdrop-blur-xl
+      border border-white/20
+      rounded-3xl p-10
+      shadow-[0_20px_40px_rgba(0,0,0,0.35)]
+      transition-all duration-300
+      hover:-translate-y-2
+      hover:shadow-[0_25px_50px_rgba(59,130,246,0.35)]
+    "
+  >
+    {/* Quote Icon */}
+    <div className="flex justify-center mb-6">
+      <div
+        className="
+          w-14 h-14 rounded-full
+          flex items-center justify-center
+          bg-gradient-to-br from-blue-500/30 to-indigo-500/30
+          border border-blue-400/30
+          text-blue-400 text-2xl
+        "
+      >
+        <FontAwesomeIcon icon={faQuoteLeft} />
+      </div>
+    </div>
+
+    {/* Review */}
+    <p className="text-gray-200 italic text-lg leading-relaxed">
+      “A complete game changer! Renting tools from PowerX is smoother,
+      faster, and more reliable than ever. Highly recommended.”
+    </p>
+
+    {/* Reviewer */}
+    <div className="mt-8">
+      <p className="font-semibold text-white text-lg">
+        Rahul Menon
+      </p>
+      <p className="text-sm text-gray-400">
+        Contract Engineer
+      </p>
+    </div>
+  </div>
+</section>
+
 
           {/* ------------ FEEDBACK SECTION ------------ */}
-          <section id="contact" className="mb-20">
-            <div className="backdrop-blur bg-white/10 border border-white/20 rounded-3xl p-8 md:p-12">
+          <section id="contact" className="mb-24 relative">
+  {/* Background glow */}
+  <div className="absolute inset-0 -z-10 flex justify-center">
+    <div className="w-[500px] h-[500px] bg-indigo-500/20 blur-[140px] rounded-full"></div>
+  </div>
 
-              {/* TITLE */}
-              <h2 className="text-3xl font-bold text-white text-center mb-2">
-                Contact & Feedback
-              </h2>
-              <p className="text-gray-400 text-center mb-12">
-                Reach out to us or share your valuable suggestions.
-              </p>
+  <div
+    className="
+      backdrop-blur-xl bg-white/10
+      border border-white/20
+      rounded-3xl
+      p-8 md:p-14
+      shadow-[0_20px_40px_rgba(0,0,0,0.35)]
+    "
+  >
+    {/* TITLE */}
+    <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-3">
+      Contact & Feedback
+    </h2>
+    <p className="text-gray-400 text-center mb-14 max-w-xl mx-auto">
+      Reach out to us or share your valuable suggestions to help PowerX grow better.
+    </p>
 
-              {/* GRID */}
-              <div className="grid md:grid-cols-2 gap-12">
+    {/* GRID */}
+    <div className="grid md:grid-cols-2 gap-14 items-start">
 
-                {/* ---------------- LEFT SIDE : CONTACT ---------------- */}
-                <div>
-                  <h3 className="text-2xl font-semibold text-white mb-6">
-                    Get in Touch
-                  </h3>
+      {/* ================= LEFT : CONTACT INFO ================= */}
+      <div>
+        <h3 className="text-2xl font-semibold text-white mb-8">
+          Get in Touch
+        </h3>
 
-                  <p className="text-gray-300 mb-3">
-                    📍 <span className="font-medium">Kochi, Kerala</span>
-                  </p>
-                  <p className="text-gray-300 mb-3">
-                    📞 <span className="font-medium">+91 98765 43210</span>
-                  </p>
-                  <p className="text-gray-300 mb-6">
-                    📧 <span className="font-medium">support@powerx.com</span>
-                  </p>
-
-                  <p className="text-gray-400 text-sm leading-relaxed mb-8">
-                    For tool rentals, partnerships, or support, feel free to contact us.
-                    Our team usually responds within 24 hours.
-                  </p>
-
-                  {/* CONTACT FORM */}
-
-                </div>
-
-                {/* ---------------- RIGHT SIDE : FEEDBACK ---------------- */}
-                <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6">
-                  <h3 className="text-2xl font-semibold text-white mb-4">
-                    Suggestions & Feedback
-                  </h3>
-
-
-
-                  <form className="space-y-5">
-                    {/* Subject */}
-                    <div>
-                      <label className="block text-white/70 text-sm mb-1">
-                        Subject
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Brief title of your feedback"
-                        className="w-full px-4 py-3 rounded-xl
-                   bg-white/10 text-white placeholder-white/40
-                   border border-white/20 outline-none
-                   focus:border-indigo-500"
-                      />
-                    </div>
-
-                    {/* Category */}
-                    <div>
-                      <label className="block text-white/70 text-sm mb-1">
-                        Category
-                      </label>
-                      <select
-                        className="w-full px-4 py-3 rounded-xl
-                   bg-white/10 text-white
-                   border border-white/20 outline-none
-                   focus:border-indigo-500"
-                      >
-                        <option className="bg-slate-900">General Feedback</option>
-                        <option className="bg-slate-900">Bug / Issue</option>
-                        <option className="bg-slate-900">Feature Request</option>
-                        <option className="bg-slate-900">Tool Suggestion</option>
-                      </select>
-                    </div>
-
-                    {/* Message */}
-                    <div>
-                      <label className="block text-white/70 text-sm mb-1">
-                        Message
-                      </label>
-                      <textarea
-                        rows="4"
-                        placeholder="Write your feedback here..."
-                        className="w-full px-4 py-3 rounded-xl
-                   bg-white/10 text-white placeholder-white/40
-                   border border-white/20 outline-none
-                   focus:border-indigo-500 resize-none"
-                      />
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        className="px-8 py-3 rounded-xl font-semibold text-white
-                   bg-gradient-to-r from-indigo-600 to-purple-600
-                   hover:scale-105 transition shadow-lg"
-                      >
-                        Submit Feedback
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-
-              </div>
+        <div className="space-y-5">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20
+                            flex items-center justify-center text-indigo-400">
+              📍
             </div>
-          </section>
+            <p className="text-gray-300">
+              <span className="font-medium text-white">Kochi, Kerala</span>
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20
+                            flex items-center justify-center text-indigo-400">
+              📞
+            </div>
+            <p className="text-gray-300">
+              <span className="font-medium text-white">+91 98765 43210</span>
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/20
+                            flex items-center justify-center text-indigo-400">
+              📧
+            </div>
+            <p className="text-gray-300">
+              <span className="font-medium text-white">support@powerx.com</span>
+            </p>
+          </div>
+        </div>
+
+        <p className="text-gray-400 text-sm leading-relaxed mt-8 max-w-md">
+          For tool rentals, partnerships, or technical support, feel free to reach
+          out. Our team usually responds within <span className="text-white">24 hours</span>.
+        </p>
+      </div>
+
+      {/* ================= RIGHT : FEEDBACK FORM ================= */}
+      <div
+        className="
+          bg-white/10 backdrop-blur-xl
+          border border-white/20
+          rounded-2xl p-8
+          transition-all duration-300
+          hover:shadow-[0_20px_40px_rgba(59,130,246,0.25)]
+        "
+      >
+        <h3 className="text-2xl font-semibold text-white mb-6">
+          Suggestions & Feedback
+        </h3>
+
+        <form className="space-y-6">
+          {/* Subject */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1">
+              Subject
+            </label>
+            <input
+              type="text"
+              placeholder="Brief title of your feedback"
+              className="
+                w-full px-4 py-3 rounded-xl
+                bg-white/10 text-white placeholder-white/40
+                border border-white/20 outline-none
+                focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50
+                transition
+              "
+            />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1">
+              Category
+            </label>
+            <select
+              className="
+                w-full px-4 py-3 rounded-xl
+                bg-white/10 text-white
+                border border-white/20 outline-none
+                focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50
+                transition
+              "
+            >
+              <option className="bg-slate-900">General Feedback</option>
+              <option className="bg-slate-900">Bug / Issue</option>
+              <option className="bg-slate-900">Feature Request</option>
+              <option className="bg-slate-900">Tool Suggestion</option>
+            </select>
+          </div>
+
+          {/* Message */}
+          <div>
+            <label className="block text-white/70 text-sm mb-1">
+              Message
+            </label>
+            <textarea
+              rows="4"
+              placeholder="Write your feedback here..."
+              className="
+                w-full px-4 py-3 rounded-xl
+                bg-white/10 text-white placeholder-white/40
+                border border-white/20 outline-none resize-none
+                focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50
+                transition
+              "
+            />
+          </div>
+
+          {/* Submit */}
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              className="
+                px-8 py-3 rounded-xl
+                bg-gradient-to-r from-indigo-600 to-purple-600
+                text-white font-semibold
+                shadow-lg shadow-indigo-500/30
+                hover:scale-105 active:scale-95
+                transition-all duration-300
+              "
+            >
+              Submit Feedback
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 
 
 

@@ -8,12 +8,16 @@ import {
   faUsers,
   faClock,
   faCalendarAlt,
+  faToolbox,
+  faPeopleCarryBox,
+  faComment,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   getToolCountAPI,
   getUserCountAPI,
   getAllAdminBookingsAPI,
   getRentalsCountAPI,
+  getFeedbacksCountAPI,
 } from "../../services/allApis";
 import { useNavigate } from "react-router-dom";
 
@@ -48,6 +52,17 @@ const [rentalCount, setRentalCount] = useState(0);
     const token = sessionStorage.getItem("token");
     const res = await getRentalsCountAPI({ Authorization: `Bearer ${token}` });
     if (res.status === 200) setRentalCount(res.data.count);
+  };
+  fetchCount();
+}, []);
+
+// feedback count
+const [feedbackCount, setFeedbackCount] = useState(0);
+  useEffect(() => {
+  const fetchCount = async () => {
+    const token = sessionStorage.getItem("token");
+    const res = await getFeedbacksCountAPI({ Authorization: `Bearer ${token}` });
+    if (res.status === 200) setFeedbackCount(res.data.count);
   };
   fetchCount();
 }, []);
@@ -132,17 +147,27 @@ const [rentalCount, setRentalCount] = useState(0);
           </div>
 
           {/* STATS */}
-          <div className="grid gap-8 md:grid-cols-3 mb-14">
+          <div className="grid gap-8 md:grid-cols-4 mb-14">
             <div className="bg-white/10 rounded-xl p-6 flex gap-4">
-              <FontAwesomeIcon icon={faBook} className="text-3xl text-blue-400" />
+              <FontAwesomeIcon icon={faToolbox} className="text-3xl text-blue-400" />
               <div>
                 <p className="text-gray-300">Total Tools</p>
                 <h2 className="text-3xl font-bold">{toolCount}</h2>
               </div>
             </div>
 
+            
+
             <div className="bg-white/10 rounded-xl p-6 flex gap-4">
               <FontAwesomeIcon icon={faUsers} className="text-3xl text-green-400" />
+              <div>
+                <p className="text-gray-300">Total Users</p>
+                <h2 className="text-3xl font-bold">{userCount}</h2>
+              </div>
+            </div>
+
+            <div className="bg-white/10 rounded-xl p-6 flex gap-4">
+              <FontAwesomeIcon icon={faPeopleCarryBox} className="text-3xl text-green-400" />
               <div>
                 <p className="text-gray-300">Total Rentals</p>
                 <h2 className="text-3xl font-bold">{rentalCount}</h2>
@@ -151,10 +176,10 @@ const [rentalCount, setRentalCount] = useState(0);
             </div>
 
             <div className="bg-white/10 rounded-xl p-6 flex gap-4">
-              <FontAwesomeIcon icon={faUsers} className="text-3xl text-green-400" />
+              <FontAwesomeIcon icon={faComment} className="text-3xl text-green-400" />
               <div>
-                <p className="text-gray-300">Total Users</p>
-                <h2 className="text-3xl font-bold">{userCount}</h2>
+                <p className="text-gray-300">Total Feedback</p>
+                <h2 className="text-3xl font-bold">{feedbackCount}</h2>
               </div>
             </div>
           </div>
