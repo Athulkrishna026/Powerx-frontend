@@ -100,7 +100,7 @@ const Home = () => {
 
             <ul className="hidden md:flex gap-10 text-gray-300">
               <li className="idden md:block bg-white/10 border border-white/20 text-white px-5 py-2 rounded-full ">Home</li>
-              <Link to="/logininit">
+              <Link to="/login">
                 <li className="idden md:block bg-white/10 border border-white/20 text-white px-5 py-2 rounded-full ">Tools</li>
               </Link>
               <li className="idden md:block bg-white/10 border border-white/20 text-white px-5 py-2 rounded-full "><a href="#contact">Contact</a></li>
